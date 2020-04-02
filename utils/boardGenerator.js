@@ -7,6 +7,8 @@ export default function boardGenerator(level, width, height) {
     for (let x = 0; x < width; ++x) {
       if (x == 0 || x + 1 == width || y == 0 || y + 1 == height) {
         row.push(Constants.SolidBlock);
+      } else if ((x + 1) % 2 && (y + 1) % 2) {
+        row.push(Constants.SolidBlock);
       } else {
         row.push(Constants.BackgroundTile);
       }

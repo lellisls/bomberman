@@ -23,8 +23,8 @@ export default function createGame() {
   function eventHandler(command) {}
 
   function initialize() {
-    const boardWidth = 12;
-    const boardHeight = 12;
+    const boardWidth = 13;
+    const boardHeight = 13;
     const board = boardGenerator(state.level, boardWidth, boardHeight);
     notifyAll({
       type: "render",
