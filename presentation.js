@@ -1,8 +1,20 @@
+import imageGenerator from "./utils/imageGenerator.js";
+
 export default function createPresentation(canvas) {
   const context = canvas.getContext("2d");
 
   let state = {
     currentScreenData: null,
+    boardDimensions: {
+      tileSize: 64,
+      boardRect: {
+        startX: 0,
+        startY: 0,
+        endX: 0,
+        endY: 0
+      },
+      edgeSize: 64
+    },
     buttons: new Map(),
     observers: []
   };
@@ -29,6 +41,20 @@ export default function createPresentation(canvas) {
   function recalculateSize(width, height) {
     canvas.height = height;
     canvas.width = width;
+    const minSize = Math.min(width, height);
+    const edgeSize = minSize * 0.8;
+    const centerX = width / 2;
+    const centerY = height / 2;
+
+    state.boardDimensions.boardRect = {
+      startX: centerX - edgeSize / 2,
+      startY: centerY - edgeSize / 2,
+      endX: centerX + edgeSize / 2,
+      endY: centerY + edgeSize / 2
+    };
+
+    state.boardDimensions.edgeSize = edgeSize;
+
     render(state.currentScreenData);
   }
 
@@ -37,7 +63,39 @@ export default function createPresentation(canvas) {
     state.buttons.clear();
   }
 
-  function drawGameBoard() {}
+  async function drawGameBoard() {
+    const {
+      edgeSize,
+      boardRect: { startX, startY }
+    } = state.boardDimensions;
+
+    const { board, boardWidth, boardHeight } = state.currentScreenData.gameData;
+    const tileSize = edgeSize / boardWidth;
+
+    console.log("DrawGameBoard state:", state);
+    context.fillStyle = "#DDDDEE";
+    context.shadowBlur = 10;
+    context.shadowColor = "black";
+    context.beginPath();
+    context.rect(startX, startY, edgeSize, edgeSize);
+    context.fill();
+
+    for (let y = 0; y < boardHeight; ++y) {
+      for (let x = 0; x < boardWidth; ++x) {
+        const tile = board[y][x];
+        const imagePath = `./assets/images/${tile}.png`;
+        console.log(`Image: ${imagePath}`);
+        let image = await imageGenerator(imagePath);
+        context.drawImage(
+          image,
+          startX + x * tileSize,
+          startY + y * tileSize,
+          tileSize + 1,
+          tileSize + 1
+        );
+      }
+    }
+  }
 
   function drawButton(text, id) {
     context.fillStyle = "#DDDDEE";
@@ -99,6 +157,7 @@ export default function createPresentation(canvas) {
         drawButton(screenData.buttonText, screenData.buttonAction);
       },
       boardScreen: () => {
+        clearScreen();
         drawGameBoard(screenData);
         drawButton(screenData.buttonText, screenData.buttonAction);
         drawUpperCornerText(`Level: ${screenData.level}`);
@@ -132,7 +191,6 @@ export default function createPresentation(canvas) {
       });
     }
   }
-
 
   window.onresize = evt =>
     recalculateSize(document.body.clientWidth, document.body.clientHeight);

@@ -1,7 +1,7 @@
 export default class Constants {
 }
 
-Constants.BackgroundTile = "BackgroundTile";
-Constants.ExplodableBlock = "ExplodableBlock";
-Constants.Portal = "Portal";
-Constants.SolidBlock = "SolidBlock";
+Constants.BackgroundTile = "Blocks/BackgroundTile";
+Constants.ExplodableBlock = "Blocks/ExplodableBlock";
+Constants.Portal = "Blocks/Portal";
+Constants.SolidBlock = "Blocks/SolidBlock";

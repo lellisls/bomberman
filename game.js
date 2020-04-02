@@ -23,7 +23,9 @@ export default function createGame() {
   function eventHandler(command) {}
 
   function initialize() {
-    const board = boardGenerator(state.level, 16, 16);
+    const boardWidth = 12;
+    const boardHeight = 12;
+    const board = boardGenerator(state.level, boardWidth, boardHeight);
     notifyAll({
       type: "render",
       data: {
@@ -31,7 +33,9 @@ export default function createGame() {
         buttonText: "Restart!",
         buttonAction: "startScreen",
         gameData: {
-          board
+          board,
+          boardWidth,
+          boardHeight
         },
         level: state.level
       }
