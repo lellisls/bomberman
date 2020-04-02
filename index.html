@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="./assets/css/styles.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+</body>
+
+<script type="module">
+    import createGame from "./game.js";
+    import createClickListener from "./clickListener.js";
+    import createKeyListener from './keyListener.js';
+    import createPresentation from "./presentation.js";
+
+    window.onload = ( ) => {
+        let canvas = document.getElementById("canvas");
+
+        const keyListener = createKeyListener(canvas);
+        const clickListener = createClickListener(canvas);
+        const game = createGame();
+        const presentation = createPresentation(canvas);
+
+        clickListener.subscribe(presentation.eventHandler);
+        clickListener.subscribe(game.eventHandler)
+        keyListener.subscribe(game.eventHandler)
+        presentation.subscribe(clickListener.eventHandler);
+
+        game.subscribe(presentation.eventHandler);
+
+        presentation.recalculateSize(document.body.clientWidth, document.body.clientHeight)
+        game.initialize()
+    }
+</script>
+
+</html>
