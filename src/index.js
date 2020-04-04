@@ -15,6 +15,12 @@ var config = {
     create,
     update,
   },
+  physics: {
+    default: "arcade",
+    arcade: {
+      debug: true,
+    },
+  },
 };
 
 const game = new Phaser.Game(config);

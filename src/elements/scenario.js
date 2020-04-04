@@ -8,23 +8,52 @@ export default function createScenario(game) {
     scene.load.image("solid-block", "Blocks/SolidBlock.png");
   }
 
-  function createSprites(scene, { board, boardWidth, boardHeight }) {
-    // let map = scene.make.tilemap("map");
-    for (let y = 0; y < boardHeight; ++y) {
-      for (let x = 0; x < boardWidth; ++x) {
-        board[y][x] = 0;
+  function createSprites(
+    scene,
+    { board, boardWidth: width, boardHeight: height }
+  ) {
+    let data = [];
+    for (let y = 0; y < height; ++y) {
+      let row = [];
+      for (let x = 0; x < width; ++x) {
+        row[x] = 0;
       }
+      data.push(row);
     }
+
+    console.table(board);
+    console.table(data);
+
     let map = scene.make.tilemap({
-      data: board,
       tileWidth: 64,
       tileHeight: 64,
-      width: boardWidth,
-      height: boardHeight,
+      width,
+      height,
+      data,
     });
-    var tileset = map.addTilesetImage("background-tile", null, 64, 64);
-    var grass = map.createDynamicLayer(0, tileset, 0, 0);
-    // var sprites = map.createFromObjects('grass','grass')
+
+    var backgroundTile = map.addTilesetImage(0, "background-tile", 64, 64);
+    var solidTile = map.addTilesetImage(1, "solid-block", 64, 64);
+    var grass = map.createDynamicLayer(0, backgroundTile, 0, 0);
+    var solidBlocks = map.createBlankDynamicLayer("blank", solidTile, 0, 0);
+    // var solidBlocks = map.createBlankDynamicLayer("blank", solidTile, 0, 0);
+
+    for (let y = 0; y < height; ++y) {
+      for (let x = 0; x < width; ++x) {
+        if ("solid-block" === board[y][x]) {
+          solidBlocks.putTileAt(0, x, y);
+        }
+      }
+    }
+
+    console.log(map);
+
+    solidBlocks.setCollisionByExclusion([-1]);
+
+    return {
+      grass,
+      solidBlocks,
+    };
   }
 
   return {

@@ -1,5 +1,6 @@
 export default function createPlayer(game) {
-  let sprite = null;
+  const VELOCITY = 100;
+  let player = null;
 
   function getBmanFrames(title, start, end) {
     let frames = [];
@@ -48,39 +49,49 @@ export default function createPlayer(game) {
       frameRate: 10,
     });
 
-    sprite = scene.add.sprite(352, 352, "bomberman");
-    return sprite;
+    player = scene.physics.add.sprite(352, 352, "bomberman");
+    return player;
   }
 
   function moveUp() {
-    sprite.anims.play("bomberman-back", true);
-    sprite.flipX = false;
+    player.anims.play("bomberman-back", true);
+    player.flipX = false;
+    player.body.setVelocityX(0);
+    player.body.setVelocityY(-VELOCITY);
   }
 
   function moveDown() {
-    sprite.anims.play("bomberman-front", true);
-    sprite.flipX = false;
+    player.anims.play("bomberman-front", true);
+    player.flipX = false;
+    player.body.setVelocityX(0);
+    player.body.setVelocityY(+VELOCITY);
   }
 
   function moveLeft() {
-    sprite.anims.play("bomberman-side", true);
-    sprite.flipX = true;
+    player.anims.play("bomberman-side", true);
+    player.flipX = true;
+    player.body.setVelocityX(-VELOCITY);
+    player.body.setVelocityY(0);
   }
 
   function moveRight() {
-    sprite.anims.play("bomberman-side", true);
-    sprite.flipX = false;
+    player.anims.play("bomberman-side", true);
+    player.flipX = false;
+    player.body.setVelocityX(+VELOCITY);
+    player.body.setVelocityY(0);
   }
 
   function idle() {
-    sprite.anims.play("bomberman-idle", true);
-    sprite.flipX = false;
+    player.anims.play("bomberman-idle", true);
+    player.flipX = false;
+    player.body.setVelocityX(0);
+    player.body.setVelocityY(0);
   }
 
   return {
     createSprite,
     preload,
-    sprite,
+    sprite: player,
     moveUp,
     moveDown,
     moveLeft,
