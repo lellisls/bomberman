@@ -64,6 +64,7 @@ export default function createScenario(game) {
     console.log(map);
 
     solidBlocksLayer.setCollisionByExclusion([-1]);
+    explodableBlocksLayer.setCollisionByExclusion([-1]);
 
     return {
       grassLayer,
