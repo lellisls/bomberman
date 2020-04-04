@@ -6,37 +6,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link href="./assets/css/styles.css" rel="stylesheet" type="text/css" />
+    </script>
 </head>
 
-<body>
+<body id="game">
     <canvas id="canvas"></canvas>
 </body>
 
 <script type="module">
     'use strict';
-    import createGame from "./game.js";
-    import createClickListener from "./clickListener.js";
-    import createKeyListener from './keyListener.js';
-    import createPresentation from "./presentation.js";
 
-    window.onload = ( ) => {
-        let canvas = document.getElementById("canvas");
+    import createPhaserGame from './phaserGame.js';
+    const game = createPhaserGame();
 
-        const keyListener = createKeyListener(document);
-        const clickListener = createClickListener(canvas);
-        const game = createGame();
-        const presentation = createPresentation(canvas);
+    // import createGame from "./game.js";
+    // import createClickListener from "./clickListener.js";
+    // import createKeyListener from './keyListener.js';
+    // import createPresentation from "./presentation.js";
 
-        clickListener.subscribe(presentation.eventHandler);
-        clickListener.subscribe(game.eventHandler)
-        keyListener.subscribe(game.eventHandler)
-        presentation.subscribe(clickListener.eventHandler);
+    // window.onload = ( ) => {
+    //     let canvas = document.getElementById("canvas");
 
-        game.subscribe(presentation.eventHandler);
+    //     const keyListener = createKeyListener(document);
+    //     const clickListener = createClickListener(canvas);
+    //     const game = createGame();
+    //     const presentation = createPresentation(canvas);
 
-        presentation.recalculateSize(document.body.clientWidth, document.body.clientHeight)
-        game.initialize()
-    }
+    //     clickListener.subscribe(presentation.eventHandler);
+    //     clickListener.subscribe(game.eventHandler)
+    //     keyListener.subscribe(game.eventHandler)
+    //     presentation.subscribe(clickListener.eventHandler);
+
+    //     game.subscribe(presentation.eventHandler);
+
+    //     presentation.recalculateSize(document.body.clientWidth, document.body.clientHeight)
+    //     game.initialize()
+    // }
 </script>
 
 </html>
