@@ -53,7 +53,7 @@ export default function createClickListener(canvas) {
     const commandFunction = acceptedCommands[command.type];
 
     if (commandFunction) {
-      console.log(`EventListener received: ${command.type}`);
+      console.log(`ClickListener received: ${command.type}`);
       commandFunction(command.data);
     }
   }

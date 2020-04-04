@@ -1,6 +1,6 @@
 export default function createKeyListener(document) {
   const state = {
-    observers: []
+    observers: [],
   };
 
   function subscribe(observerFunction) {
@@ -12,6 +12,7 @@ export default function createKeyListener(document) {
   }
 
   function notifyAll(command) {
+    console.log("KeyListener: ", command);
     for (const observerFunction of state.observers) {
       observerFunction(command);
     }
@@ -23,8 +24,10 @@ export default function createKeyListener(document) {
     const keyPressed = event.key;
 
     const command = {
-      type: "move-player",
-      keyPressed
+      type: "movePlayer",
+      data: {
+        keyPressed,
+      },
     };
 
     notifyAll(command);
@@ -32,6 +35,6 @@ export default function createKeyListener(document) {
 
   return {
     subscribe,
-    unsubscribeAll
+    unsubscribeAll,
   };
 }

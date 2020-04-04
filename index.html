@@ -13,6 +13,7 @@
 </body>
 
 <script type="module">
+    'use strict';
     import createGame from "./game.js";
     import createClickListener from "./clickListener.js";
     import createKeyListener from './keyListener.js';
@@ -21,7 +22,7 @@
     window.onload = ( ) => {
         let canvas = document.getElementById("canvas");
 
-        const keyListener = createKeyListener(canvas);
+        const keyListener = createKeyListener(document);
         const clickListener = createClickListener(canvas);
         const game = createGame();
         const presentation = createPresentation(canvas);

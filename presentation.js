@@ -1,4 +1,5 @@
 import imageGenerator from "./utils/imageGenerator.js";
+import Constants from "./utils/constants.js";
 
 export default function createPresentation(canvas) {
   const context = canvas.getContext("2d");
@@ -11,12 +12,12 @@ export default function createPresentation(canvas) {
         startX: 0,
         startY: 0,
         endX: 0,
-        endY: 0
+        endY: 0,
       },
-      edgeSize: 64
+      edgeSize: 64,
     },
     buttons: new Map(),
-    observers: []
+    observers: [],
   };
 
   function subscribe(observerFunction) {
@@ -50,7 +51,7 @@ export default function createPresentation(canvas) {
       startX: centerX - edgeSize / 2,
       startY: centerY - edgeSize / 2,
       endX: centerX + edgeSize / 2,
-      endY: centerY + edgeSize / 2
+      endY: centerY + edgeSize / 2,
     };
 
     state.boardDimensions.edgeSize = edgeSize;
@@ -66,10 +67,15 @@ export default function createPresentation(canvas) {
   async function drawGameBoard() {
     const {
       edgeSize,
-      boardRect: { startX, startY }
+      boardRect: { startX, startY },
     } = state.boardDimensions;
 
-    const { board, boardWidth, boardHeight } = state.currentScreenData.gameData;
+    const {
+      board,
+      boardWidth,
+      boardHeight,
+      player,
+    } = state.currentScreenData.gameData;
     const tileSize = edgeSize / boardWidth;
 
     console.log("DrawGameBoard state:", state);
@@ -84,7 +90,6 @@ export default function createPresentation(canvas) {
       for (let x = 0; x < boardWidth; ++x) {
         const tile = board[y][x];
         const imagePath = `./assets/images/${tile}.png`;
-        console.log(`Image: ${imagePath}`);
         let image = await imageGenerator(imagePath);
         context.drawImage(
           image,
@@ -94,6 +99,19 @@ export default function createPresentation(canvas) {
           tileSize + 1
         );
       }
+    }
+
+    if (player) {
+      let image = await imageGenerator(
+        `./assets/images/${Constants.BombermanFront00}.png`
+      );
+      context.drawImage(
+        image,
+        startX + player.x * tileSize - tileSize/2,
+        startY + player.y * tileSize - tileSize*1.5,
+        tileSize,
+        tileSize * 2
+      )
     }
   }
 
@@ -160,8 +178,8 @@ export default function createPresentation(canvas) {
         clearScreen();
         drawGameBoard(screenData);
         drawButton(screenData.buttonText, screenData.buttonAction);
-        drawUpperCornerText(`Level: ${screenData.level}`);
-      }
+        drawUpperCornerText(`Level: ${screenData.gameData.level}`);
+      },
     };
 
     const renderFunction = screenRenders[screenData.screen];
@@ -175,7 +193,7 @@ export default function createPresentation(canvas) {
 
   function eventHandler(command) {
     const acceptedCommands = {
-      render
+      render,
     };
 
     const commandFunction = acceptedCommands[command.type];
@@ -186,19 +204,19 @@ export default function createPresentation(canvas) {
       notifyAll({
         type: "buttonsUpdated",
         data: {
-          buttons: state.buttons
-        }
+          buttons: state.buttons,
+        },
       });
     }
   }
 
-  window.onresize = evt =>
+  window.onresize = (evt) =>
     recalculateSize(document.body.clientWidth, document.body.clientHeight);
 
   return {
     eventHandler,
     recalculateSize,
     subscribe,
-    unsubscribeAll
+    unsubscribeAll,
   };
 }
