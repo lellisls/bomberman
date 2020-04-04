@@ -8,15 +8,17 @@ export default function boardGenerator(level, width, height) {
       } else if ((x + 1) % 2 && (y + 1) % 2) {
         row.push("solid-block");
       } else if (x <= 2 && y <= 2) {
-        row.push("background-tile");
+        row.push("bomberman");
       } else if (Math.round(Math.random() * 10) < 6) {
         row.push("explodable-block");
+      } else if (Math.round(Math.random() * 10) < 2) {
+        row.push("creep");
       } else {
         row.push("background-tile");
       }
     }
     board.push(row);
   }
-  board[height - 2][width - 2] = "background-tile";
-  return board;
+  board[height - 2][width - 2] = "portal";
+  return { data: board, width, height };
 }

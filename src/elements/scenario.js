@@ -8,10 +8,7 @@ export default function createScenario(game) {
     scene.load.image("solid-block", "Blocks/SolidBlock.png");
   }
 
-  function createSprites(
-    scene,
-    { board, boardWidth: width, boardHeight: height }
-  ) {
+  function createSprites(scene, { data: board, width, height }) {
     let data = [];
     for (let y = 0; y < height; ++y) {
       let row = [];
