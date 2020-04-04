@@ -49,9 +49,10 @@ function create() {
     state.boardHeight
   );
 
-  scenario.createSprites(this, state);
-  player.createSprite(this);
+  const { grassLayer, solidBlocksLayer } = scenario.createSprites(this, state);
+  const playerSprite = player.createSprite(this);
 
+  this.physics.add.collider(solidBlocksLayer, playerSprite);
   cursors = this.input.keyboard.createCursorKeys();
 }
 

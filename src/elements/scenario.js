@@ -34,25 +34,30 @@ export default function createScenario(game) {
 
     var backgroundTile = map.addTilesetImage(0, "background-tile", 64, 64);
     var solidTile = map.addTilesetImage(1, "solid-block", 64, 64);
-    var grass = map.createDynamicLayer(0, backgroundTile, 0, 0);
-    var solidBlocks = map.createBlankDynamicLayer("blank", solidTile, 0, 0);
+    var grassLayer = map.createDynamicLayer(0, backgroundTile, 0, 0);
+    var solidBlocksLayer = map.createBlankDynamicLayer(
+      "blank",
+      solidTile,
+      0,
+      0
+    );
     // var solidBlocks = map.createBlankDynamicLayer("blank", solidTile, 0, 0);
 
     for (let y = 0; y < height; ++y) {
       for (let x = 0; x < width; ++x) {
         if ("solid-block" === board[y][x]) {
-          solidBlocks.putTileAt(0, x, y);
+          solidBlocksLayer.putTileAt(0, x, y);
         }
       }
     }
 
     console.log(map);
 
-    solidBlocks.setCollisionByExclusion([-1]);
+    solidBlocksLayer.setCollisionByExclusion([-1]);
 
     return {
-      grass,
-      solidBlocks,
+      grassLayer,
+      solidBlocksLayer,
     };
   }
 

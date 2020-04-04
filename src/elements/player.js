@@ -50,6 +50,10 @@ export default function createPlayer(game) {
     });
 
     player = scene.physics.add.sprite(352, 352, "bomberman");
+    player.setCollideWorldBounds(true);
+    player.setBounce(0.2);
+    player.body.setOffset(10, 100);
+    player.body.setSize(44, 28, false);
     return player;
   }
 
