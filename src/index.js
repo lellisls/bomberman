@@ -1,4 +1,6 @@
+import boardGenerator from "./utils/boardGenerator";
 import Phaser from "phaser";
+import createPlayer from "./elements/player";
 
 var config = {
   type: Phaser.AUTO,
@@ -19,6 +21,13 @@ const game = new Phaser.Game(config);
 let player;
 let cursors;
 
+let state = {
+  level: 1,
+  board: [],
+  boardWidth: 13,
+  boardHeight: 13,
+};
+
 function preload() {
   this.load.path = "assets/images/";
 
@@ -29,61 +38,29 @@ function preload() {
   }
 }
 
-function getBmanFrames(title, start, end) {
-  let frames = [];
-
-  for (let i = start; i < end; ++i) {
-    frames.push({ key: `${title}-f${i}` });
-  }
-
-  return frames;
-}
-
 function create() {
-  this.anims.create({
-    key: "bomberman-front",
-    frames: getBmanFrames("bman-front", 0, 8),
-    frameRate: 8,
-    repeat: -1,
-  });
+  state.board = boardGenerator(
+    state.level,
+    state.boardWidth,
+    state.boardHeight
+  );
 
-  this.anims.create({
-    key: "bomberman-back",
-    frames: getBmanFrames("bman-back", 0, 8),
-    frameRate: 8,
-    repeat: -1,
-  });
-
-  this.anims.create({
-    key: "bomberman-side",
-    frames: getBmanFrames("bman-side", 0, 8),
-    frameRate: 8,
-    repeat: -1,
-  });
-
-  this.anims.create({
-    key: "bomberman-idle",
-    frames: [{ key: "bman-front-f0" }],
-    frameRate: 10,
-  });
-
-  player = this.add.sprite(400, 300, "bomberman");
+  player = createPlayer(this);
+  player.createSprite();
 
   cursors = this.input.keyboard.createCursorKeys();
 }
 
 function update(time, delta) {
-  player.flipX = false;
   if (cursors.up.isDown) {
-    player.anims.play("bomberman-back", true);
+    player.moveUp();
   } else if (cursors.down.isDown) {
-    player.anims.play("bomberman-front", true);
+    player.moveDown();
   } else if (cursors.left.isDown) {
-    player.anims.play("bomberman-side", true);
-    player.flipX = true;
+    player.moveLeft();
   } else if (cursors.right.isDown) {
-    player.anims.play("bomberman-side", true);
+    player.moveRight();
   } else {
-    player.anims.play("bomberman-idle", true);
+    player.idle();
   }
 }
