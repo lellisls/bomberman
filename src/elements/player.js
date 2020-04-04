@@ -2,6 +2,8 @@ export default function createPlayer(game) {
   const VELOCITY = 100;
   let player = null;
 
+  let idleMove = "bomberman-idle-front";
+
   function getBmanFrames(title, start, end) {
     let frames = [];
 
@@ -44,9 +46,18 @@ export default function createPlayer(game) {
     });
 
     scene.anims.create({
-      key: "bomberman-idle",
+      key: "bomberman-idle-front",
       frames: [{ key: "bman-front-f0" }],
-      frameRate: 10,
+    });
+
+    scene.anims.create({
+      key: "bomberman-idle-back",
+      frames: [{ key: "bman-back-f0" }],
+    });
+
+    scene.anims.create({
+      key: "bomberman-idle-side",
+      frames: [{ key: "bman-side-f0" }],
     });
 
     player = scene.physics.add.sprite(96, 64, "bomberman");
@@ -62,6 +73,7 @@ export default function createPlayer(game) {
     player.flipX = false;
     player.body.setVelocityX(0);
     player.body.setVelocityY(-VELOCITY);
+    idleMove = "bomberman-idle-back";
   }
 
   function moveDown() {
@@ -69,6 +81,7 @@ export default function createPlayer(game) {
     player.flipX = false;
     player.body.setVelocityX(0);
     player.body.setVelocityY(+VELOCITY);
+    idleMove = "bomberman-idle-front";
   }
 
   function moveLeft() {
@@ -76,6 +89,7 @@ export default function createPlayer(game) {
     player.flipX = true;
     player.body.setVelocityX(-VELOCITY);
     player.body.setVelocityY(0);
+    idleMove = "bomberman-idle-side";
   }
 
   function moveRight() {
@@ -83,11 +97,11 @@ export default function createPlayer(game) {
     player.flipX = false;
     player.body.setVelocityX(+VELOCITY);
     player.body.setVelocityY(0);
+    idleMove = "bomberman-idle-side";
   }
 
   function idle() {
-    player.anims.play("bomberman-idle", true);
-    player.flipX = false;
+    player.anims.play(idleMove, true);
     player.body.setVelocityX(0);
     player.body.setVelocityY(0);
   }
