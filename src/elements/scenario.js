@@ -48,12 +48,17 @@ export default function createScenario(game) {
     );
     // var solidBlocks = map.createBlankDynamicLayer("blank", solidTile, 0, 0);
 
+    let portal;
     for (let y = 0; y < height; ++y) {
       for (let x = 0; x < width; ++x) {
         if ("solid-block" === board[y][x]) {
           solidBlocksLayer.putTileAt(0, x, y);
         } else if ("explodable-block" === board[y][x]) {
           explodableBlocksLayer.putTileAt(0, x, y);
+        } else if ("portal" === board[y][x]) {
+          portal = scene.physics.add.sprite(x * 64 + 32, y * 64 + 32, `portal`);
+          portal.setCollideWorldBounds(true);
+          portal.body.setSize(64, 64, false);
         }
       }
     }
@@ -67,6 +72,7 @@ export default function createScenario(game) {
       grassLayer,
       solidBlocksLayer,
       explodableBlocksLayer,
+      portal,
     };
   }
 
