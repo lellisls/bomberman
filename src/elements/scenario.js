@@ -32,14 +32,22 @@ export default function createScenario(game) {
       data,
     });
 
-    var backgroundTile = map.addTilesetImage(0, "background-tile", 64, 64);
-    var solidTile = map.addTilesetImage(1, "solid-block", 64, 64);
-    var grassLayer = map.createDynamicLayer(0, backgroundTile, 0, 0);
+    var backgroundTile = map.addTilesetImage("background-tile", null, 64, 64);
+    var solidTile = map.addTilesetImage("solid-block", null, 64, 64);
+    var explodableBlockTile = map.addTilesetImage(
+      "explodable-block",
+      null,
+      64,
+      64
+    );
+    var grassLayer = map.createDynamicLayer(0, backgroundTile);
     var solidBlocksLayer = map.createBlankDynamicLayer(
-      "blank",
-      solidTile,
-      0,
-      0
+      "solid-blocks",
+      solidTile
+    );
+    var explodableBlocksLayer = map.createBlankDynamicLayer(
+      "explodable-blocks",
+      explodableBlockTile
     );
     // var solidBlocks = map.createBlankDynamicLayer("blank", solidTile, 0, 0);
 
@@ -47,6 +55,8 @@ export default function createScenario(game) {
       for (let x = 0; x < width; ++x) {
         if ("solid-block" === board[y][x]) {
           solidBlocksLayer.putTileAt(0, x, y);
+        } else if ("explodable-block" === board[y][x]) {
+          explodableBlocksLayer.putTileAt(0, x, y);
         }
       }
     }
@@ -58,6 +68,7 @@ export default function createScenario(game) {
     return {
       grassLayer,
       solidBlocksLayer,
+      explodableBlocksLayer,
     };
   }
 

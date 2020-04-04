@@ -49,7 +49,7 @@ export default function createPlayer(game) {
       frameRate: 10,
     });
 
-    player = scene.physics.add.sprite(352, 352, "bomberman");
+    player = scene.physics.add.sprite(96, 64, "bomberman");
     player.setCollideWorldBounds(true);
     player.setBounce(0.2);
     player.body.setOffset(10, 100);

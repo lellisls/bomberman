@@ -7,6 +7,10 @@ export default function boardGenerator(level, width, height) {
         row.push("solid-block");
       } else if ((x + 1) % 2 && (y + 1) % 2) {
         row.push("solid-block");
+      } else if (x <= 2 && y <= 2) {
+        row.push("background-tile");
+      } else if (Math.round(Math.random() * 10) < 8) {
+        row.push("explodable-block");
       } else {
         row.push("background-tile");
       }
