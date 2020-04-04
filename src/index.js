@@ -1,12 +1,13 @@
 import boardGenerator from "./utils/boardGenerator";
 import Phaser from "phaser";
 import createPlayer from "./elements/player";
+import createScenario from "./elements/scenario";
 
 var config = {
   type: Phaser.AUTO,
   parent: "game",
-  width: 800,
-  height: 650,
+  width: 704,
+  height: 704,
   backgroundColor: "#4d4d4d",
   pixelArt: true,
   scene: {
@@ -18,24 +19,21 @@ var config = {
 
 const game = new Phaser.Game(config);
 
-let player;
+let player = createPlayer(game);
+let scenario = createScenario(game);
+
 let cursors;
 
 let state = {
   level: 1,
   board: [],
-  boardWidth: 13,
-  boardHeight: 13,
+  boardWidth: 11,
+  boardHeight: 11,
 };
 
 function preload() {
-  this.load.path = "assets/images/";
-
-  for (let i = 0; i < 8; ++i) {
-    this.load.image(`bman-front-f${i}`, `Bomberman/Front/Bman_F_f0${i}.png`);
-    this.load.image(`bman-back-f${i}`, `Bomberman/Back/Bman_B_f0${i}.png`);
-    this.load.image(`bman-side-f${i}`, `Bomberman/Side/Bman_F_f0${i}.png`);
-  }
+  player.preload(this);
+  scenario.preload(this);
 }
 
 function create() {
@@ -45,8 +43,8 @@ function create() {
     state.boardHeight
   );
 
-  player = createPlayer(this);
-  player.createSprite();
+  scenario.createSprites(this, state);
+  player.createSprite(this);
 
   cursors = this.input.keyboard.createCursorKeys();
 }

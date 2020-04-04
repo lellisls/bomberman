@@ -11,35 +11,44 @@ export default function createPlayer(game) {
     return frames;
   }
 
-  function createSprite() {
-    game.anims.create({
+  function preload(scene) {
+    scene.load.path = "assets/images/";
+    for (let i = 0; i < 8; ++i) {
+      scene.load.image(`bman-front-f${i}`, `Bomberman/Front/Bman_F_f0${i}.png`);
+      scene.load.image(`bman-back-f${i}`, `Bomberman/Back/Bman_B_f0${i}.png`);
+      scene.load.image(`bman-side-f${i}`, `Bomberman/Side/Bman_F_f0${i}.png`);
+    }
+  }
+
+  function createSprite(scene) {
+    scene.anims.create({
       key: "bomberman-front",
       frames: getBmanFrames("bman-front", 0, 8),
       frameRate: 8,
       repeat: -1,
     });
 
-    game.anims.create({
+    scene.anims.create({
       key: "bomberman-back",
       frames: getBmanFrames("bman-back", 0, 8),
       frameRate: 8,
       repeat: -1,
     });
 
-    game.anims.create({
+    scene.anims.create({
       key: "bomberman-side",
       frames: getBmanFrames("bman-side", 0, 8),
       frameRate: 8,
       repeat: -1,
     });
 
-    game.anims.create({
+    scene.anims.create({
       key: "bomberman-idle",
       frames: [{ key: "bman-front-f0" }],
       frameRate: 10,
     });
 
-    sprite = game.add.sprite(400, 300, "bomberman");
+    sprite = scene.add.sprite(352, 352, "bomberman");
     return sprite;
   }
 
@@ -70,6 +79,7 @@ export default function createPlayer(game) {
 
   return {
     createSprite,
+    preload,
     sprite,
     moveUp,
     moveDown,
