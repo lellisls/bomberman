@@ -106,8 +106,8 @@ function debugCircle(cx, cy, radius) {
 
 function findCollisions(scene, bx, by, radius) {
   const { solidBlocksLayer } = state.scenario;
-  const collided = scene.physics.overlapCirc(bx, by, radius, true, true);
-
+  // debugCircle(bx, by, radius);
+  let collided = scene.physics.overlapCirc(bx, by, radius, true, true);
   const tile = solidBlocksLayer.getTileAtWorldXY(bx, by);
   if (tile !== null) {
     collided = [tile, ...collided];
@@ -123,6 +123,26 @@ function findCollisions(scene, bx, by, radius) {
   return collided;
 }
 
+function explode(scene, bx, by, factorX, factorY) {
+  for (let dist = 1; dist < 3; ++dist) {
+    const fx = bx + 64 * dist * factorX;
+    const fy = by + 64 * dist * factorY;
+    const collisions = findCollisions(scene, fx, fy, 20);
+
+    if (collisions.length > 0) {
+      collisions.forEach((coll) => {
+        if (coll.gameObject) {
+          coll.gameObject.destroy();
+          bombManager.createFlame(fx, fy);
+        }
+      });
+      break;
+    } else {
+      bombManager.createFlame(fx, fy);
+    }
+  }
+}
+
 function placeBomb() {
   const { bx, by } = player.getBombPosition();
   const [scene] = game.scene.scenes;
@@ -136,12 +156,10 @@ function placeBomb() {
   bomb.on("animationcomplete-explode", () => {
     bomb.destroy();
     bombManager.createFlame(bx, by);
-
-    // for (let dist = 0; dist < 3; ++dist) {
-    //   collisions = findCollisions(scene, bx + dist, by + dist, 20);
-    //   collisions = findCollisions(scene, bx + dist, by, 20);
-    //   collisions = findCollisions(scene, bx, by + dist, 20);
-    // }
+    explode(scene, bx, by, -1, 0);
+    explode(scene, bx, by, 0, -1);
+    explode(scene, bx, by, 1, 0);
+    explode(scene, bx, by, 0, 1);
   });
 }
 
