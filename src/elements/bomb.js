@@ -1,6 +1,7 @@
 export default function createBomb(game) {
   const state = {
-    group: null,
+    bombGroup: null,
+    flameGroup: null,
   };
 
   function getFrames(title, start, end) {
@@ -23,32 +24,56 @@ export default function createBomb(game) {
     }
   }
 
-  function createGroup(scene) {
-    state.group = scene.physics.add.group("bombs");
+  function createGroups(scene) {
+    state.bombGroup = scene.physics.add.group("bombs");
+    state.flameGroup = scene.physics.add.group("flames");
 
-    scene.anims.create({
-      key: "bomb",
+    state.animation = scene.anims.create({
+      key: "explode",
       frames: getFrames("bomb", 0, 3),
       frameRate: 1,
     });
 
-    return state.group;
+    state.animation = scene.anims.create({
+      key: "flame",
+      frames: getFrames("flame", 0, 5),
+      frameRate: 10,
+    });
+
+    return { bombGroup: state.bombGroup, flameGroup: state.flameGroup };
   }
 
   function createBomb(bx, by) {
-    const bomb = state.group.create(bx, by, "bomb-f0");
+    const bomb = state.bombGroup.create(bx, by, "bomb-f0");
     bomb.setCollideWorldBounds(true);
     bomb.setBounce(0.5);
     bomb.body.setSize(48, 48, false);
     bomb.body.immovable = true;
     bomb.name = "bomb";
-    bomb.play("bomb");
+    bomb.play("explode");
     return bomb;
   }
 
+  function createFlame(bx, by) {
+    const flame = state.bombGroup.create(bx, by, "flame-f0");
+    flame.setCollideWorldBounds(true);
+    flame.setBounce(0.5);
+    flame.body.setSize(48, 48, false);
+    flame.body.immovable = true;
+    flame.name = "flame";
+    flame.play("flame");
+
+    flame.on("animationcomplete-flame", () => {
+      flame.destroy();
+    });
+
+    return flame;
+  }
+
   return {
-    createGroup,
+    createGroups,
     createBomb,
+    createFlame,
     preload,
   };
 }

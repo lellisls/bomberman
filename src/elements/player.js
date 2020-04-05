@@ -72,7 +72,7 @@ export default function createPlayer(game) {
     player.body.setOffset(10, 100);
 
     state.sprite = player;
-    player.name = "player";
+    player.name = "player"
     return player;
   }
 

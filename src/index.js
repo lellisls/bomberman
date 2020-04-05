@@ -43,7 +43,7 @@ const state = {
     creeps: [],
     portal: null,
   },
-  bombsGroup: null,
+  bombGroup: null,
   creepGroup: null,
   scenario: {},
 };
@@ -82,13 +82,18 @@ function create() {
   this.physics.add.collider(state.sprites.player, explodableBlocksGroup);
 
   cursors = this.input.keyboard.createCursorKeys();
-  state.bombsGroup = bombManager.createGroup(this);
-  this.physics.add.collider(state.bombsGroup, state.sprites.player);
-  this.physics.add.collider(state.bombsGroup, state.bombsGroup);
+  const { bombGroup, flameGroup } = bombManager.createGroups(this);
+
+  state.bombGroup = bombGroup;
+  state.flameGroup = flameGroup;
+
+  this.physics.add.collider(state.bombGroup, state.sprites.player);
   this.input.keyboard.on("keydown-SPACE", placeBomb);
 }
 
 function debugCircle(cx, cy, radius) {
+  const [scene] = game.scene.scenes;
+
   var color = 0xffff00;
   var thickness = 4;
   var alpha = 1;
@@ -99,27 +104,45 @@ function debugCircle(cx, cy, radius) {
   graphics.strokeCircle(cx, cy, radius);
 }
 
-function placeBomb() {
-  const { bx, by } = player.getBombPosition();
+function findCollisions(scene, bx, by, radius) {
   const { solidBlocksLayer } = state.scenario;
-  const [scene] = game.scene.scenes;
-  var radius = 20;
   const collided = scene.physics.overlapCirc(bx, by, radius, true, true);
+
+  const tile = solidBlocksLayer.getTileAtWorldXY(bx, by);
+  if (tile !== null) {
+    collided = [tile, ...collided];
+  }
 
   if (collided.length > 0) {
     console.log(
       "COLLIDED:",
-      collided.map((elm) => elm.gameObject.name)
+      collided.map((elm) => (elm.gameObject ? elm.gameObject.name : elm))
     );
+  }
+
+  return collided;
+}
+
+function placeBomb() {
+  const { bx, by } = player.getBombPosition();
+  const [scene] = game.scene.scenes;
+  const bombCollisions = findCollisions(scene, bx, by, 20);
+
+  if (bombCollisions.length > 0) {
     return;
   }
 
-  if (solidBlocksLayer.getTileAtWorldXY(bx, by) !== null) {
-    console.log("COLLIDED:", solidBlocksLayer.getTileAtWorldXY(bx, by));
-    return;
-  }
+  const bomb = bombManager.createBomb(bx, by);
+  bomb.on("animationcomplete-explode", () => {
+    bomb.destroy();
+    bombManager.createFlame(bx, by);
 
-  bombManager.createBomb(bx, by);
+    // for (let dist = 0; dist < 3; ++dist) {
+    //   collisions = findCollisions(scene, bx + dist, by + dist, 20);
+    //   collisions = findCollisions(scene, bx + dist, by, 20);
+    //   collisions = findCollisions(scene, bx, by + dist, 20);
+    // }
+  });
 }
 
 function update(time, delta) {
