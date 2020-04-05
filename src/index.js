@@ -7,7 +7,7 @@ import createCreep from "./elements/creep";
 const BOARD_WIDTH = 11;
 const BOARD_HEIGHT = 11;
 
-var config = {
+const config = {
   type: Phaser.AUTO,
   parent: "game",
   width: BOARD_WIDTH * 64,
@@ -29,33 +29,42 @@ var config = {
 
 const game = new Phaser.Game(config);
 
-let player = createPlayer(game);
-let scenario = createScenario(game);
-let creepManager = createCreep(game);
+const player = createPlayer(game);
+const scenario = createScenario(game);
+const creepManager = createCreep(game);
 
-let cursors;
-
-let state = {
+const state = {
   level: 1,
   board: {},
+  sprites: {
+    player: null,
+    creeps: [],
+    portal: null,
+  },
+  bombsGroup: null,
 };
+
+let cursors;
 
 function preload() {
   player.preload(this);
   scenario.preload(this);
   creepManager.preload(this);
+  this.load.image("bomb", "Bomb/Bomb_f01.png");
 }
 
 function create() {
   state.board = boardGenerator(state.level, BOARD_WIDTH, BOARD_HEIGHT);
 
-  const { solidBlocksLayer, explodableBlocksLayer } = scenario.createSprites(
-    this,
-    state.board
-  );
+  const {
+    solidBlocksLayer,
+    explodableBlocksLayer,
+    portal,
+  } = scenario.createSprites(this, state.board);
 
-  const playerSprite = player.createSprite(this);
-  const creepSprites = [];
+  state.sprites.portal = portal;
+  state.sprites.player = player.createSprite(this);
+  state.sprites.creeps = [];
 
   for (let y = 0; y < state.board.height; ++y) {
     for (let x = 0; x < state.board.width; ++x) {
@@ -66,17 +75,42 @@ function create() {
             x,
             y,
           },
-          creepSprites.length
+          state.sprites.creeps.length
         );
-        creepSprites.push(creep);
+        state.sprites.creeps.push(creep);
       }
     }
   }
 
-  this.physics.add.collider(solidBlocksLayer, playerSprite);
-  this.physics.add.collider(explodableBlocksLayer, playerSprite);
-
+  this.physics.add.collider(solidBlocksLayer, state.sprites.player);
+  this.physics.add.collider(explodableBlocksLayer, state.sprites.player);
   cursors = this.input.keyboard.createCursorKeys();
+  state.bombsGroup = this.physics.add.group("bombs");
+
+  this.input.keyboard.on("keydown-SPACE", placeBomb);
+}
+
+function placeBomb() {
+  const { left, right, top } = state.sprites.player.body;
+  const { direction } = player.state;
+  const center = left + (right - left) / 2;
+  let bx = center;
+  let by = top;
+  if ("up" === direction) {
+    by -= 64;
+  } else if ("down" === direction) {
+    by += 64;
+  } else if ("left" === direction) {
+    bx -= 64;
+  } else if ("right" === direction) {
+    bx += 64;
+  }
+  bx = Math.round((bx - 32) / 64) * 64 + 32;
+  by = Math.round((by - 32) / 64) * 64 + 32;
+
+  const bomb = state.bombsGroup.create(bx, by, "bomb");
+  bomb.setCollideWorldBounds(true);
+  bomb.body.setSize(48, 48, false);
 }
 
 function update(time, delta) {

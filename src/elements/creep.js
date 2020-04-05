@@ -56,9 +56,8 @@ export default function createCreep(game) {
     );
     creep.setCollideWorldBounds(true);
     creep.setBounce(0.2);
+    creep.body.setSize(48, 48, true);
     creep.body.setOffset(8, 8);
-    creep.body.setSize(48, 52, false);
-
     this.idle(creep);
     return creep;
   }

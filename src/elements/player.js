@@ -2,6 +2,11 @@ export default function createPlayer(game) {
   const VELOCITY = 100;
   let player = null;
 
+  const state = {
+    direction: "down",
+    sprite: null
+  };
+
   let idleMove = "bomberman-idle-front";
 
   function getBmanFrames(title, start, end) {
@@ -63,8 +68,11 @@ export default function createPlayer(game) {
     player = scene.physics.add.sprite(96, 64, "bomberman");
     player.setCollideWorldBounds(true);
     player.setBounce(0.2);
+    player.body.setSize(44, 28, true);
     player.body.setOffset(10, 100);
-    player.body.setSize(44, 28, false);
+
+    state.sprite = player;
+
     return player;
   }
 
@@ -74,6 +82,7 @@ export default function createPlayer(game) {
     player.body.setVelocityX(0);
     player.body.setVelocityY(-VELOCITY);
     idleMove = "bomberman-idle-back";
+    state.direction = "up";
   }
 
   function moveDown() {
@@ -82,6 +91,7 @@ export default function createPlayer(game) {
     player.body.setVelocityX(0);
     player.body.setVelocityY(+VELOCITY);
     idleMove = "bomberman-idle-front";
+    state.direction = "down";
   }
 
   function moveLeft() {
@@ -90,6 +100,7 @@ export default function createPlayer(game) {
     player.body.setVelocityX(-VELOCITY);
     player.body.setVelocityY(0);
     idleMove = "bomberman-idle-side";
+    state.direction = "left";
   }
 
   function moveRight() {
@@ -98,6 +109,7 @@ export default function createPlayer(game) {
     player.body.setVelocityX(+VELOCITY);
     player.body.setVelocityY(0);
     idleMove = "bomberman-idle-side";
+    state.direction = "right";
   }
 
   function idle() {
@@ -109,11 +121,11 @@ export default function createPlayer(game) {
   return {
     createSprite,
     preload,
-    sprite: player,
     moveUp,
     moveDown,
     moveLeft,
     moveRight,
+    state,
     idle,
   };
 }
