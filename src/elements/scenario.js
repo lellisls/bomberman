@@ -31,22 +31,14 @@ export default function createScenario(game) {
 
     var backgroundTile = map.addTilesetImage("background-tile", null, 64, 64);
     var solidTile = map.addTilesetImage("solid-block", null, 64, 64);
-    var explodableBlockTile = map.addTilesetImage(
-      "explodable-block",
-      null,
-      64,
-      64
-    );
+
     var grassLayer = map.createDynamicLayer(0, backgroundTile);
     var solidBlocksLayer = map.createBlankDynamicLayer(
       "solid-blocks",
       solidTile
     );
-    var explodableBlocksLayer = map.createBlankDynamicLayer(
-      "explodable-blocks",
-      explodableBlockTile
-    );
-    // var solidBlocks = map.createBlankDynamicLayer("blank", solidTile, 0, 0);
+
+    var explodableBlocksGroup = scene.physics.add.group("explodable-blocks");
 
     let portal;
     for (let y = 0; y < height; ++y) {
@@ -54,7 +46,13 @@ export default function createScenario(game) {
         if ("solid-block" === board[y][x]) {
           solidBlocksLayer.putTileAt(0, x, y);
         } else if ("explodable-block" === board[y][x]) {
-          explodableBlocksLayer.putTileAt(0, x, y);
+          let block = explodableBlocksGroup.create(
+            x * 64 + 32,
+            y * 64 + 32,
+            "explodable-block"
+          );
+          block.body.setSize(64, 64, false);
+          block.body.immovable = true;
         } else if ("portal" === board[y][x]) {
           portal = scene.physics.add.sprite(x * 64 + 32, y * 64 + 32, `portal`);
           portal.setCollideWorldBounds(true);
@@ -63,15 +61,12 @@ export default function createScenario(game) {
       }
     }
 
-    console.log(map);
-
     solidBlocksLayer.setCollisionByExclusion([-1]);
-    explodableBlocksLayer.setCollisionByExclusion([-1]);
 
     return {
       grassLayer,
       solidBlocksLayer,
-      explodableBlocksLayer,
+      explodableBlocksGroup,
       portal,
     };
   }

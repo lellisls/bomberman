@@ -4,7 +4,7 @@ export default function createPlayer(game) {
 
   const state = {
     direction: "down",
-    sprite: null
+    sprite: null,
   };
 
   let idleMove = "bomberman-idle-front";
@@ -72,8 +72,27 @@ export default function createPlayer(game) {
     player.body.setOffset(10, 100);
 
     state.sprite = player;
-
+    player.name = "player";
     return player;
+  }
+
+  function getBombPosition() {
+    const { left, right, top } = state.sprite.body;
+    const center = left + (right - left) / 2;
+    let bx = center;
+    let by = top;
+    if ("up" === state.direction) {
+      by -= 64;
+    } else if ("down" === state.direction) {
+      by += 64;
+    } else if ("left" === state.direction) {
+      bx -= 64;
+    } else if ("right" === state.direction) {
+      bx += 64;
+    }
+    bx = Math.round((bx - 32) / 64) * 64 + 32;
+    by = Math.round((by - 32) / 64) * 64 + 32;
+    return { bx, by };
   }
 
   function moveUp() {
@@ -119,6 +138,7 @@ export default function createPlayer(game) {
   }
 
   return {
+    getBombPosition,
     createSprite,
     preload,
     moveUp,

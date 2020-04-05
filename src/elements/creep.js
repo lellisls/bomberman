@@ -1,6 +1,9 @@
 export default function createCreep(game) {
   const VELOCITY = 100;
-  let creeps = [];
+  const state = {
+    creeps: [],
+    group: null,
+  };
 
   function getFrames(title, start, end) {
     let frames = [];
@@ -21,7 +24,7 @@ export default function createCreep(game) {
     }
   }
 
-  function createSprite(scene, position, index) {
+  function createGroup(scene) {
     scene.anims.create({
       key: "creep-front",
       frames: getFrames("creep-front", 0, 6),
@@ -49,16 +52,18 @@ export default function createCreep(game) {
       frameRate: 10,
     });
 
-    let creep = scene.physics.add.sprite(
-      position.x * 64 + 32,
-      position.y * 64 + 32,
-      `creep_${index}`
-    );
+    state.group = scene.physics.add.group("creeps");
+    return state.group;
+  }
+
+  function createCreep(x, y, index) {
+    let creep = state.group.create(x * 64 + 32, y * 64 + 32, `creep_${index}`);
     creep.setCollideWorldBounds(true);
     creep.setBounce(0.2);
     creep.body.setSize(48, 48, true);
     creep.body.setOffset(8, 8);
     this.idle(creep);
+    this.state.creeps.push(creep);
     return creep;
   }
 
@@ -98,9 +103,10 @@ export default function createCreep(game) {
   }
 
   return {
-    createSprite,
+    createCreep,
+    createGroup,
     preload,
-    sprites: creeps,
+    state,
     moveUp,
     moveDown,
     moveLeft,
