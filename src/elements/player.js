@@ -72,7 +72,7 @@ export default function createPlayer(game) {
     player.body.setOffset(10, 100);
 
     state.sprite = player;
-    player.name = "player"
+    player.name = "player";
     return player;
   }
 
@@ -96,6 +96,7 @@ export default function createPlayer(game) {
   }
 
   function moveUp() {
+    if (!player.active) return;
     player.anims.play("bomberman-back", true);
     player.flipX = false;
     player.body.setVelocityX(0);
@@ -105,6 +106,7 @@ export default function createPlayer(game) {
   }
 
   function moveDown() {
+    if (!player.active) return;
     player.anims.play("bomberman-front", true);
     player.flipX = false;
     player.body.setVelocityX(0);
@@ -114,6 +116,7 @@ export default function createPlayer(game) {
   }
 
   function moveLeft() {
+    if (!player.active) return;
     player.anims.play("bomberman-side", true);
     player.flipX = true;
     player.body.setVelocityX(-VELOCITY);
@@ -123,6 +126,7 @@ export default function createPlayer(game) {
   }
 
   function moveRight() {
+    if (!player.active) return;
     player.anims.play("bomberman-side", true);
     player.flipX = false;
     player.body.setVelocityX(+VELOCITY);
@@ -132,6 +136,7 @@ export default function createPlayer(game) {
   }
 
   function idle() {
+    if (!player.active) return;
     player.anims.play(idleMove, true);
     player.body.setVelocityX(0);
     player.body.setVelocityY(0);

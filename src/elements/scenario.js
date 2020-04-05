@@ -53,10 +53,12 @@ export default function createScenario(game) {
           );
           block.body.setSize(64, 64, false);
           block.body.immovable = true;
+          block.name = "explodable-block";
         } else if ("portal" === board[y][x]) {
           portal = scene.physics.add.sprite(x * 64 + 32, y * 64 + 32, `portal`);
           portal.setCollideWorldBounds(true);
           portal.body.setSize(64, 64, false);
+          portal.name = "portal";
         }
       }
     }

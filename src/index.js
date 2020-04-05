@@ -106,6 +106,7 @@ function debugCircle(cx, cy, radius) {
 
 function findCollisions(scene, bx, by, radius) {
   const { solidBlocksLayer } = state.scenario;
+
   // debugCircle(bx, by, radius);
   let collided = scene.physics.overlapCirc(bx, by, radius, true, true);
   const tile = solidBlocksLayer.getTileAtWorldXY(bx, by);
@@ -132,6 +133,11 @@ function explode(scene, bx, by, factorX, factorY) {
     if (collisions.length > 0) {
       collisions.forEach((coll) => {
         if (coll.gameObject) {
+          if (coll.gameObject.name === "portal") {
+            return;
+          } else if (coll.gameObject.name === "player") {
+            console.log("YOU LOSE");
+          }
           coll.gameObject.destroy();
           bombManager.createFlame(fx, fy);
         }
