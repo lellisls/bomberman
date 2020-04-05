@@ -59,6 +59,7 @@ export default function createScenario(game) {
           portal.setCollideWorldBounds(true);
           portal.body.setSize(64, 64, 0, 0, true);
           portal.name = "portal";
+          portal.body.immovable = true;
         }
       }
     }

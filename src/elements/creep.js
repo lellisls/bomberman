@@ -1,5 +1,10 @@
 export default function createCreep(game) {
   const VELOCITY = 100;
+  const UP = 0;
+  const RIGHT = 1;
+  const DOWN = 2;
+  const LEFT = 3;
+
   const state = {
     creeps: [],
     group: null,
@@ -61,8 +66,9 @@ export default function createCreep(game) {
     creep.setCollideWorldBounds(true);
     creep.setBounce(0.2);
     creep.body.setSize(64, 64, 0, 0, true);
-    this.idle(creep);
+    this.moveDown(creep);
     this.state.creeps.push(creep);
+    creep.name = "creep";
     return creep;
   }
 
@@ -71,6 +77,7 @@ export default function createCreep(game) {
     creep.flipX = false;
     creep.body.setVelocityX(0);
     creep.body.setVelocityY(-VELOCITY);
+    creep.direction = UP;
   }
 
   function moveDown(creep) {
@@ -78,6 +85,7 @@ export default function createCreep(game) {
     creep.flipX = false;
     creep.body.setVelocityX(0);
     creep.body.setVelocityY(+VELOCITY);
+    creep.direction = DOWN;
   }
 
   function moveLeft(creep) {
@@ -85,6 +93,7 @@ export default function createCreep(game) {
     creep.flipX = true;
     creep.body.setVelocityX(-VELOCITY);
     creep.body.setVelocityY(0);
+    creep.direction = LEFT;
   }
 
   function moveRight(creep) {
@@ -92,6 +101,7 @@ export default function createCreep(game) {
     creep.flipX = false;
     creep.body.setVelocityX(+VELOCITY);
     creep.body.setVelocityY(0);
+    creep.direction = RIGHT;
   }
 
   function idle(creep) {
@@ -99,11 +109,24 @@ export default function createCreep(game) {
     creep.flipX = false;
     creep.body.setVelocityX(0);
     creep.body.setVelocityY(0);
+    creep.direction = -1;
+  }
+
+  function changeDirection(col1, col2) {
+    [col1, col2].forEach((creep) => {
+      if (!creep || creep.name !== "creep") {
+        return;
+      }
+      const directions = [moveUp, moveRight, moveDown, moveLeft];
+      const nextDirection = directions[(creep.direction + 1) % 4];
+      nextDirection(creep);
+    });
   }
 
   return {
     createCreep,
     createGroup,
+    changeDirection,
     preload,
     state,
     moveUp,

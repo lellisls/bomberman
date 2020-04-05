@@ -51,6 +51,15 @@ export default function createBomb(game) {
     bomb.body.immovable = true;
     bomb.name = "bomb";
     bomb.play("explode");
+
+    bomb.on("animationcomplete-explode", () => {
+      bomb.destroy();
+      createFlame(bx, by);
+      explode(bx, by, -1, 0);
+      explode(bx, by, 0, -1);
+      explode(bx, by, 1, 0);
+      explode(bx, by, 0, 1);
+    });
     return bomb;
   }
 
@@ -68,6 +77,33 @@ export default function createBomb(game) {
     });
 
     return flame;
+  }
+
+  function explode(bx, by, factorX, factorY) {
+    const [scene] = game.scene.scenes;
+
+    for (let dist = 1; dist < 3; ++dist) {
+      const fx = bx + 64 * dist * factorX;
+      const fy = by + 64 * dist * factorY;
+      const collisions = game.collisionFinder.findCollisions(fx, fy, 20);
+
+      if (collisions.length > 0) {
+        collisions.forEach((coll) => {
+          if (coll.gameObject) {
+            if (["portal", "bomb"].indexOf(coll.gameObject.name) > 0) {
+              return;
+            } else if (coll.gameObject.name === "player") {
+              console.log("YOU LOSE");
+            }
+            coll.gameObject.destroy();
+            createFlame(fx, fy);
+          }
+        });
+        break;
+      } else {
+        createFlame(fx, fy);
+      }
+    }
   }
 
   return {

@@ -4,6 +4,7 @@ import createPlayer from "./elements/player";
 import createScenario from "./elements/scenario";
 import createCreep from "./elements/creep";
 import createBomb from "./elements/bomb";
+import createCollisionFinder from "./utils/collisionFinder";
 
 const BOARD_WIDTH = 11;
 const BOARD_HEIGHT = 11;
@@ -34,6 +35,7 @@ const player = createPlayer(game);
 const scenario = createScenario(game);
 const creepManager = createCreep(game);
 const bombManager = createBomb(game);
+const collisionFinder = createCollisionFinder(game);
 
 const state = {
   level: 1,
@@ -45,8 +47,12 @@ const state = {
   },
   bombGroup: null,
   creepGroup: null,
+  explodableBlocksGroup: null,
   scenario: {},
 };
+
+game.state = state;
+game.collisionFinder = collisionFinder;
 
 let cursors;
 
@@ -66,7 +72,13 @@ function create() {
   state.sprites.portal = portal;
   state.sprites.player = player.createSprite(this);
   state.sprites.creeps = [];
+
   state.creepGroup = creepManager.createGroup(this);
+  const { bombGroup, flameGroup } = bombManager.createGroups(this);
+
+  state.explodableBlocksGroup = explodableBlocksGroup;
+  state.bombGroup = bombGroup;
+  state.flameGroup = flameGroup;
 
   for (let y = 0; y < state.board.height; ++y) {
     for (let x = 0; x < state.board.width; ++x) {
@@ -81,92 +93,54 @@ function create() {
   this.physics.add.collider(state.sprites.player, solidBlocksLayer);
   this.physics.add.collider(state.sprites.player, explodableBlocksGroup);
 
-  cursors = this.input.keyboard.createCursorKeys();
-  const { bombGroup, flameGroup } = bombManager.createGroups(this);
+  this.physics.add.collider(
+    state.creepGroup,
+    solidBlocksLayer,
+    creepManager.changeDirection
+  );
+  this.physics.add.collider(
+    state.creepGroup,
+    explodableBlocksGroup,
+    creepManager.changeDirection
+  );
+  this.physics.add.collider(
+    state.creepGroup,
+    state.bombGroup,
+    creepManager.changeDirection
+  );
+  this.physics.add.collider(
+    state.creepGroup,
+    portal,
+    creepManager.changeDirection
+  );
+  this.physics.add.collider(
+    state.creepGroup,
+    state.creepGroup,
+    creepManager.changeDirection
+  );
 
-  state.bombGroup = bombGroup;
-  state.flameGroup = flameGroup;
+  this.physics.add.collider(
+    state.creepGroup,
+    state.sprites.player,
+    creepManager.changeDirection
+  );
+
+  cursors = this.input.keyboard.createCursorKeys();
 
   this.physics.add.collider(state.bombGroup, state.sprites.player);
   this.input.keyboard.on("keydown-SPACE", placeBomb);
 }
 
-function debugCircle(cx, cy, radius) {
-  const [scene] = game.scene.scenes;
-
-  var color = 0xffff00;
-  var thickness = 4;
-  var alpha = 1;
-
-  let graphics = scene.add.graphics(0, 0);
-  graphics.lineStyle(thickness, color, alpha);
-
-  graphics.strokeCircle(cx, cy, radius);
-}
-
-function findCollisions(scene, bx, by, radius) {
-  const { solidBlocksLayer } = state.scenario;
-
-  // debugCircle(bx, by, radius);
-  let collided = scene.physics.overlapCirc(bx, by, radius, true, true);
-  const tile = solidBlocksLayer.getTileAtWorldXY(bx, by);
-  if (tile !== null) {
-    collided = [tile, ...collided];
-  }
-
-  if (collided.length > 0) {
-    console.log(
-      "COLLIDED:",
-      collided.map((elm) => (elm.gameObject ? elm.gameObject.name : elm))
-    );
-  }
-
-  return collided;
-}
-
-function explode(scene, bx, by, factorX, factorY) {
-  for (let dist = 1; dist < 3; ++dist) {
-    const fx = bx + 64 * dist * factorX;
-    const fy = by + 64 * dist * factorY;
-    const collisions = findCollisions(scene, fx, fy, 20);
-
-    if (collisions.length > 0) {
-      collisions.forEach((coll) => {
-        if (coll.gameObject) {
-          if (coll.gameObject.name === "portal") {
-            return;
-          } else if (coll.gameObject.name === "player") {
-            console.log("YOU LOSE");
-          }
-          coll.gameObject.destroy();
-          bombManager.createFlame(fx, fy);
-        }
-      });
-      break;
-    } else {
-      bombManager.createFlame(fx, fy);
-    }
-  }
-}
-
 function placeBomb() {
   const { bx, by } = player.getBombPosition();
   const [scene] = game.scene.scenes;
-  const bombCollisions = findCollisions(scene, bx, by, 20);
+  const bombCollisions = game.collisionFinder.findCollisions(bx, by, 20);
 
   if (bombCollisions.length > 0) {
     return;
   }
 
   const bomb = bombManager.createBomb(bx, by);
-  bomb.on("animationcomplete-explode", () => {
-    bomb.destroy();
-    bombManager.createFlame(bx, by);
-    explode(scene, bx, by, -1, 0);
-    explode(scene, bx, by, 0, -1);
-    explode(scene, bx, by, 1, 0);
-    explode(scene, bx, by, 0, 1);
-  });
 }
 
 function update(time, delta) {
@@ -181,4 +155,8 @@ function update(time, delta) {
   } else {
     player.idle();
   }
+
+  // state.sprites.creeps.forEach((creep) => {
+  //   creepManager.moveRight(creep);
+  // });
 }
