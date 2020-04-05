@@ -68,7 +68,7 @@ export default function createPlayer(game) {
     player = scene.physics.add.sprite(96, 64, "bomberman");
     player.setCollideWorldBounds(true);
     player.setBounce(0.2);
-    player.body.setSize(44, 28, true);
+    player.body.setSize(44, 28);
     player.body.setOffset(10, 100);
 
     state.sprite = player;

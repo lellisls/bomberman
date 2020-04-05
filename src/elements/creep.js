@@ -60,8 +60,7 @@ export default function createCreep(game) {
     let creep = state.group.create(x * 64 + 32, y * 64 + 32, `creep_${index}`);
     creep.setCollideWorldBounds(true);
     creep.setBounce(0.2);
-    creep.body.setSize(48, 48, true);
-    creep.body.setOffset(8, 8);
+    creep.body.setSize(64, 64, 0, 0, true);
     this.idle(creep);
     this.state.creeps.push(creep);
     return creep;

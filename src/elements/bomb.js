@@ -47,7 +47,7 @@ export default function createBomb(game) {
     const bomb = state.bombGroup.create(bx, by, "bomb-f0");
     bomb.setCollideWorldBounds(true);
     bomb.setBounce(0.5);
-    bomb.body.setSize(48, 48, false);
+    bomb.body.setSize(48, 48, 0, 0, true);
     bomb.body.immovable = true;
     bomb.name = "bomb";
     bomb.play("explode");
@@ -58,7 +58,7 @@ export default function createBomb(game) {
     const flame = state.bombGroup.create(bx, by, "flame-f0");
     flame.setCollideWorldBounds(true);
     flame.setBounce(0.5);
-    flame.body.setSize(48, 48, false);
+    flame.body.setSize(48, 48, 0, 0, true);
     flame.body.immovable = true;
     flame.name = "flame";
     flame.play("flame");
