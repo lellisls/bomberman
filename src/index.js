@@ -8,6 +8,7 @@ import createCollisionFinder from "./utils/collisionFinder";
 
 const BOARD_WIDTH = 15;
 const BOARD_HEIGHT = 15;
+const DEBUG = false;
 
 const config = {
   type: Phaser.AUTO,
@@ -24,7 +25,7 @@ const config = {
   physics: {
     default: "arcade",
     arcade: {
-      debug: true,
+      debug: DEBUG,
     },
   },
 };
@@ -50,6 +51,7 @@ const state = {
   explodableBlocksGroup: null,
   scenario: {},
   created: false,
+  DEBUG
 };
 
 game.state = state;

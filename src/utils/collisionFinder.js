@@ -2,7 +2,9 @@ export default function createCollisionFinder(game) {
   function findCollisions(bx, by, radius) {
     const { solidBlocksLayer } = game.state.scenario;
     const [scene] = game.scene.scenes;
-    // debugCircle(bx, by, radius);
+    if (game.state.DEBUG) {
+      debugCircle(bx, by, radius);
+    }
 
     const collided = scene.physics.overlapCirc(bx, by, radius);
     // const collided = scene.physics.overlapRect(bx - 30, by - 30, 60, 60);

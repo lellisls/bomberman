@@ -1,12 +1,12 @@
 import Random from "../utils/random";
 
 export default function createCreep(game) {
-  const VELOCITY = 600;
+  const VELOCITY = 500;
   const UP = 0;
   const RIGHT = 1;
   const DOWN = 2;
   const LEFT = 3;
-  const DIST = 48;
+  const DIST = 64;
   const RADIUS = 30;
 
   const state = {
@@ -19,9 +19,10 @@ export default function createCreep(game) {
     [1, 0],
     [0, 1],
     [-1, 0],
+    [0, 0],
   ];
 
-  const directions = [moveUp, moveRight, moveDown, moveLeft];
+  const directions = [moveUp, moveRight, moveDown, moveLeft, idle];
 
   function getFrames(title, start, end) {
     let frames = [];
@@ -101,15 +102,17 @@ export default function createCreep(game) {
     var tweens = [
       {
         targets: creep,
-        x: { value: x, duration: VELOCITY },
-        y: { value: y, duration: VELOCITY },
+        x: { value: x, duration: ((Math.abs(dx) + 32) / 64) * VELOCITY },
+        y: { value: y, duration: ((Math.abs(dy) + 32) / 64) * VELOCITY },
       },
     ];
     const [scene] = game.scene.scenes;
     creep.tweens = scene.tweens.timeline({
       tweens,
     });
-    // game.collisionFinder.debugCircle(x, y, 10, 1000);
+    if (game.state.DEBUG) {
+      game.collisionFinder.debugCircle(x, y, 10, 1000);
+    }
     return creep.tweens;
   }
 
@@ -160,11 +163,15 @@ export default function createCreep(game) {
       cy + dy * DIST,
       RADIUS
     );
-    return collisions.filter(
-      (collided) =>
+    return collisions.filter((collided) => {
+      // if (collided.gameObject && collided.gameObject !== creep) {
+      //   console.log(collided.gameObject, creep);
+      // }
+      return (
         !collided.gameObject ||
         (collided.gameObject.name !== "player" && collided.gameObject !== creep)
-    );
+      );
+    });
   }
 
   function filterAvailable(available, { direction }) {
@@ -179,7 +186,7 @@ export default function createCreep(game) {
   function findAvailable(creep) {
     const available = [];
 
-    for (let direction = 0; direction < 4; ++direction) {
+    for (let direction = 0; direction < 5; ++direction) {
       let collisions = findCollisions(creep, direction);
       if (collisions.length <= 0) {
         available.push(direction);
@@ -195,62 +202,66 @@ export default function createCreep(game) {
 
   let times = new Map();
 
-  function changeDirection(col1, col2) {
-    [col1, col2].forEach((creep) => {
-      if (!creep || !creep.active || creep.name !== "creep") {
-        return true;
-      }
+  function changeCreepDirection(creep) {
+    if (!creep || !creep.active || creep.name !== "creep") {
+      return false;
+    }
 
-      const [scene] = game.scene.scenes;
+    const [scene] = game.scene.scenes;
 
-      let available = findAvailable(creep);
+    let available = findAvailable(creep);
 
-      if (available.length == 0) {
-        idle(creep);
-        return true;
-      }
+    if (available.length == 0) {
+      idle(creep);
+      return true;
+    }
 
-      available = Random.shuffleArray(available);
+    available = Random.shuffleArray(available);
 
-      const positions = [0, 1, 2, 3].map((dir) => {
-        const [x, y] = getDirectionPos(creep, dir);
-        return [x, y].toString();
-      });
-      positions.forEach((pos) => {
-        if (creep.time.get(pos) === undefined) {
-          creep.time.set(pos, 0.0);
-        }
-      });
-
-      const time = positions.map((a) => creep.time.get(a));
-      available = available.sort((a, b) => time[a] - time[b]);
-
-      const selected = available[0];
-      const nextMove = directions[selected];
-      let pos = positions[selected];
-      creep.time.set(pos, scene.time.now);
-      const [x, y] = getDirectionPos(creep, selected);
-
-      if (times[pos]) {
-        times[pos].destroy();
-      }
-      // times[pos] = scene.add.text(x, y, Math.round(time[selected]).toString());
-
-      // console.log(
-      //   "times:",
-      //   time.map((t) => Math.round(t)),
-      //   "\npositions:",
-      //   positions,
-      //   "\nselected:",
-      //   selected,
-      //   "\nselTime:",
-      //   time[selected],
-      //   "\nsorted:",
-      //   available.map((a) => Math.round(time[a]))
-      // );
-      nextMove(creep);
+    const positions = [0, 1, 2, 3, 4].map((dir) => {
+      const [x, y] = getDirectionPos(creep, dir);
+      return [x, y].toString();
     });
-    return true;
+    positions.forEach((pos) => {
+      if (creep.time.get(pos) === undefined) {
+        creep.time.set(pos, 0.0);
+      }
+    });
+
+    const time = positions.map((a) => creep.time.get(a));
+    available = available.sort((a, b) => time[a] - time[b]);
+
+    const selected = available[0];
+    const nextMove = directions[selected];
+    let pos = positions[selected];
+    creep.time.set(pos, scene.time.now);
+    const [x, y] = getDirectionPos(creep, selected);
+
+    if (times[pos]) {
+      times[pos].destroy();
+    }
+    // times[pos] = scene.add.text(x, y, Math.round(time[selected]).toString());
+
+    // console.log(
+    //   "times:",
+    //   time.map((t) => Math.round(t)),
+    //   "\npositions:",
+    //   positions,
+    //   "\nselected:",
+    //   selected,
+    //   "\nselTime:",
+    //   time[selected],
+    //   "\nsorted:",
+    //   available.map((a) => Math.round(time[a]))
+    // );
+    nextMove(creep);
+  }
+
+  function changeDirection(col1, col2) {
+    if (changeCreepDirection(col1)) {
+      return true;
+    }
+    return changeCreepDirection(col2);
   }
 
   return {
