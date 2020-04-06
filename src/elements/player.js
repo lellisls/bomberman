@@ -1,5 +1,5 @@
 export default function createPlayer(game) {
-  const VELOCITY = 100;
+  const VELOCITY = 150 ;
   let player = null;
 
   const state = {
@@ -32,21 +32,21 @@ export default function createPlayer(game) {
     scene.anims.create({
       key: "bomberman-front",
       frames: getBmanFrames("bman-front", 0, 8),
-      frameRate: 8,
+      frameRate: 15,
       repeat: -1,
     });
 
     scene.anims.create({
       key: "bomberman-back",
       frames: getBmanFrames("bman-back", 0, 8),
-      frameRate: 8,
+      frameRate: 15,
       repeat: -1,
     });
 
     scene.anims.create({
       key: "bomberman-side",
       frames: getBmanFrames("bman-side", 0, 8),
-      frameRate: 8,
+      frameRate: 15,
       repeat: -1,
     });
 
@@ -73,6 +73,7 @@ export default function createPlayer(game) {
 
     state.sprite = player;
     player.name = "player";
+    player.setDepth(1);
     return player;
   }
 
