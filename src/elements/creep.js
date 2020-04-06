@@ -1,13 +1,13 @@
 import Random from "../utils/random";
 
 export default function createCreep(game) {
-  const VELOCITY = 1000;
+  const VELOCITY = 600;
   const UP = 0;
   const RIGHT = 1;
   const DOWN = 2;
   const LEFT = 3;
   const DIST = 48;
-  const RADIUS = 20;
+  const RADIUS = 30;
 
   const state = {
     creeps: [],
@@ -46,21 +46,21 @@ export default function createCreep(game) {
     scene.anims.create({
       key: "creep-front",
       frames: getFrames("creep-front", 0, 6),
-      frameRate: 8,
+      frameRate: 10,
       repeat: -1,
     });
 
     scene.anims.create({
       key: "creep-back",
       frames: getFrames("creep-back", 0, 6),
-      frameRate: 8,
+      frameRate: 10,
       repeat: -1,
     });
 
     scene.anims.create({
       key: "creep-side",
       frames: getFrames("creep-side", 0, 6),
-      frameRate: 8,
+      frameRate: 10,
       repeat: -1,
     });
 
@@ -96,13 +96,13 @@ export default function createCreep(game) {
     return [cx + dx, cy + dy];
   }
 
-  function moveTo(creep, dx, dy, duration) {
+  function moveTo(creep, dx, dy) {
     const [x, y] = getNextPosition(creep, dx, dy);
     var tweens = [
       {
         targets: creep,
-        x: { value: x, duration },
-        y: { value: y, duration },
+        x: { value: x, duration: VELOCITY },
+        y: { value: y, duration: VELOCITY },
       },
     ];
     const [scene] = game.scene.scenes;
@@ -110,43 +110,41 @@ export default function createCreep(game) {
       tweens,
     });
     // game.collisionFinder.debugCircle(x, y, 10, 1000);
+    return creep.tweens;
   }
 
   function moveUp(creep) {
     creep.anims.play("creep-back", true);
     creep.flipX = false;
-    moveTo(creep, 0, 0, 10);
-    moveTo(creep, 0, -64, VELOCITY);
+    moveTo(creep, 0, -64);
     creep.direction = UP;
   }
 
   function moveDown(creep) {
     creep.anims.play("creep-front", true);
     creep.flipX = false;
-    moveTo(creep, 0, 0, 10);
-    moveTo(creep, 0, 64, VELOCITY);
+    moveTo(creep, 0, 64);
     creep.direction = DOWN;
   }
 
   function moveLeft(creep) {
     creep.anims.play("creep-side", true);
     creep.flipX = true;
-    moveTo(creep, 0, 0, 10);
-    moveTo(creep, -64, 0, VELOCITY);
+    moveTo(creep, -64, 0);
     creep.direction = LEFT;
   }
 
   function moveRight(creep) {
     creep.anims.play("creep-side", true);
     creep.flipX = false;
-    moveTo(creep, 0, 0, 10);
-    moveTo(creep, 64, 0, VELOCITY);
+    moveTo(creep, 64, 0);
     creep.direction = RIGHT;
   }
 
   function idle(creep) {
     creep.anims.play("creep-idle", true);
     creep.flipX = false;
+    moveTo(creep, 0, 0);
     creep.direction = -1;
   }
 
@@ -212,7 +210,7 @@ export default function createCreep(game) {
         return true;
       }
 
-      // available = Random.shuffleArray(available);
+      available = Random.shuffleArray(available);
 
       const positions = [0, 1, 2, 3].map((dir) => {
         const [x, y] = getDirectionPos(creep, dir);

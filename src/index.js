@@ -1,13 +1,13 @@
-import boardGenerator from "./utils/boardGenerator";
 import Phaser from "phaser";
+import boardGenerator from "./utils/boardGenerator";
 import createPlayer from "./elements/player";
 import createScenario from "./elements/scenario";
 import createCreep from "./elements/creep";
 import createBomb from "./elements/bomb";
 import createCollisionFinder from "./utils/collisionFinder";
 
-const BOARD_WIDTH = 11;
-const BOARD_HEIGHT = 11;
+const BOARD_WIDTH = 15;
+const BOARD_HEIGHT = 15;
 
 const config = {
   type: Phaser.AUTO,
@@ -142,7 +142,7 @@ function update(time, delta) {
     return;
   }
 
-  if (time < 4000 || time - lastTime < 100) {
+  if (time < 5000 || time - lastTime < 50) {
     return;
   }
   lastTime = time;
