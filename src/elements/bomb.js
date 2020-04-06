@@ -85,7 +85,7 @@ export default function createBomb(game) {
     for (let dist = 1; dist < 3; ++dist) {
       const fx = bx + 64 * dist * factorX;
       const fy = by + 64 * dist * factorY;
-      const collisions = game.collisionFinder.findCollisions(fx, fy, 32);
+      const collisions = game.collisionFinder.findCollisions(fx, fy, 30);
 
       if (collisions.length > 0) {
         collisions.forEach((coll) => {
