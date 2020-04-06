@@ -2,21 +2,21 @@ export default function createCollisionFinder(game) {
   function findCollisions(bx, by, radius) {
     const { solidBlocksLayer } = game.state.scenario;
     const [scene] = game.scene.scenes;
+    // debugCircle(bx, by, radius);
 
-    debugCircle(bx, by, radius);
-
-    let collided = scene.physics.overlapCirc(bx, by, radius, true, true);
+    const collided = scene.physics.overlapCirc(bx, by, radius);
+    // const collided = scene.physics.overlapRect(bx - 30, by - 30, 60, 60);
     const tile = solidBlocksLayer.getTileAtWorldXY(bx, by);
     if (tile !== null) {
-      collided = [tile, ...collided];
+      collided.push(tile);
     }
 
-    if (collided.length > 0) {
-      console.log(
-        "COLLIDED:",
-        collided.map((elm) => (elm.gameObject ? elm.gameObject.name : elm))
-      );
-    }
+    // if (collided.length > 0) {
+    //   console.log(
+    //     "COLLIDED:",
+    //     collided.map((elm) => (elm.gameObject ? elm.gameObject.name : elm))
+    //   );
+    // }
 
     return collided;
   }
@@ -32,7 +32,7 @@ export default function createCollisionFinder(game) {
     graphics.lineStyle(thickness, color, alpha);
 
     graphics.strokeCircle(cx, cy, radius);
-    scene.time.delayedCall(300, () => {
+    scene.time.delayedCall(100, () => {
       graphics.destroy();
     });
   }

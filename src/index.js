@@ -49,6 +49,7 @@ const state = {
   creepGroup: null,
   explodableBlocksGroup: null,
   scenario: {},
+  created: false,
 };
 
 game.state = state;
@@ -90,45 +91,24 @@ function create() {
     }
   }
 
+  this.physics.add.collider(
+    state.creepGroup,
+    state.creepGroup,
+    creepManager.changeDirection
+  );
+
+  this.physics.add.collider(state.creepGroup, state.sprites.player, () =>
+    state.sprites.player.destroy()
+  );
+
   this.physics.add.collider(state.sprites.player, solidBlocksLayer);
   this.physics.add.collider(state.sprites.player, explodableBlocksGroup);
-
-  this.physics.add.collider(
-    state.creepGroup,
-    solidBlocksLayer,
-    creepManager.changeDirection
-  );
-  this.physics.add.collider(
-    state.creepGroup,
-    explodableBlocksGroup,
-    creepManager.changeDirection
-  );
-  this.physics.add.collider(
-    state.creepGroup,
-    state.bombGroup,
-    creepManager.changeDirection
-  );
-  this.physics.add.collider(
-    state.creepGroup,
-    portal,
-    creepManager.changeDirection
-  );
-  this.physics.add.collider(
-    state.creepGroup,
-    state.creepGroup,
-    creepManager.changeDirection
-  );
-
-  this.physics.add.collider(
-    state.creepGroup,
-    state.sprites.player,
-    creepManager.changeDirection
-  );
 
   cursors = this.input.keyboard.createCursorKeys();
 
   this.physics.add.collider(state.bombGroup, state.sprites.player);
   this.input.keyboard.on("keydown-SPACE", placeBomb);
+  state.created = true;
 }
 
 function placeBomb() {
@@ -142,7 +122,8 @@ function placeBomb() {
 
   const bomb = bombManager.createBomb(bx, by);
 }
-
+let updating = false;
+let counter = 0;
 function update(time, delta) {
   if (cursors.up.isDown) {
     player.moveUp();
@@ -156,7 +137,26 @@ function update(time, delta) {
     player.idle();
   }
 
-  // state.sprites.creeps.forEach((creep) => {
-  //   creepManager.moveRight(creep);
-  // });
+  if (updating) {
+    return;
+  }
+  if (time < 4000) {
+    return;
+  }
+  // console.log({counter, time, game});
+  counter++;
+
+  updating = true;
+  state.sprites.creeps.forEach((creep) => {
+    if (!creep.active) {
+      return;
+    }
+    let { x: cx, y: cy } = creep.body.center;
+    cx = Math.round(cx);
+    cy = Math.round(cy);
+    if ((cx + 32) % 64 === 0 && (cy + 32) % 64 === 0) {
+      creepManager.changeDirection(creep);
+    }
+  });
+  updating = false;
 }
