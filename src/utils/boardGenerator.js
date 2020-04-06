@@ -10,7 +10,7 @@ export default function boardGenerator(level, width, height) {
         row.push("solid-block");
       } else if (x <= 2 && y <= 2) {
         row.push("bomberman");
-      } else if (Math.round(Math.random() * 10) < 6) {
+      } else if (Math.round(Math.random() * 10) < 2) {
         row.push("explodable-block");
       } else if (Math.round(Math.random() * 10) < 3 && creepCounter < 5) {
         row.push("creep");

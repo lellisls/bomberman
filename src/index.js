@@ -113,17 +113,18 @@ function create() {
 
 function placeBomb() {
   const { bx, by } = player.getBombPosition();
-  const [scene] = game.scene.scenes;
   const bombCollisions = game.collisionFinder.findCollisions(bx, by, 20);
 
   if (bombCollisions.length > 0) {
     return;
   }
 
-  const bomb = bombManager.createBomb(bx, by);
+  bombManager.createBomb(bx, by);
 }
+
 let updating = false;
 let counter = 0;
+let lastTime = 0;
 function update(time, delta) {
   if (cursors.up.isDown) {
     player.moveUp();
@@ -140,10 +141,12 @@ function update(time, delta) {
   if (updating) {
     return;
   }
-  if (time < 4000) {
+
+  if (time < 4000 || time - lastTime < 100) {
     return;
   }
-  // console.log({counter, time, game});
+  lastTime = time;
+  // console.log({ counter, time, game });
   counter++;
 
   updating = true;

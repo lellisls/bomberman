@@ -21,7 +21,11 @@ export default function createCollisionFinder(game) {
     return collided;
   }
 
-  function debugCircle(cx, cy, radius) {
+  function debugCircle(cx, cy, radius, timeout) {
+    if (!timeout) {
+      timeout = 100;
+    }
+
     const [scene] = game.scene.scenes;
 
     var color = 0xff00ff;
@@ -32,7 +36,7 @@ export default function createCollisionFinder(game) {
     graphics.lineStyle(thickness, color, alpha);
 
     graphics.strokeCircle(cx, cy, radius);
-    scene.time.delayedCall(100, () => {
+    scene.time.delayedCall(timeout, () => {
       graphics.destroy();
     });
   }
