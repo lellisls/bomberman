@@ -1,10 +1,13 @@
 import Phaser from "phaser";
+
+import createCollisionFinder from "./utils/collisionFinder";
 import boardGenerator from "./utils/boardGenerator";
+
 import createPlayer from "./elements/player";
 import createScenario from "./elements/scenario";
 import createCreep from "./elements/creep";
 import createBomb from "./elements/bomb";
-import createCollisionFinder from "./utils/collisionFinder";
+import createMenu from "./elements/menu";
 
 const BOARD_WIDTH = 15;
 const BOARD_HEIGHT = 15;
@@ -37,6 +40,7 @@ const scenario = createScenario(game);
 const creepManager = createCreep(game);
 const bombManager = createBomb(game);
 const collisionFinder = createCollisionFinder(game);
+const menu = createMenu(game);
 
 const state = {
   level: 1,
@@ -51,7 +55,8 @@ const state = {
   explodableBlocksGroup: null,
   scenario: {},
   created: false,
-  DEBUG
+  started: false,
+  DEBUG,
 };
 
 game.state = state;
@@ -60,6 +65,7 @@ game.collisionFinder = collisionFinder;
 let cursors;
 
 function preload() {
+  menu.preload(this);
   player.preload(this);
   scenario.preload(this);
   creepManager.preload(this);
@@ -110,9 +116,17 @@ function create() {
 
   this.physics.add.collider(state.bombGroup, state.sprites.player);
   this.input.keyboard.on("keydown-SPACE", placeBomb);
+
+  const { onePlayerButton, closeMenu } = menu.createSprites(this);
+
+  function start() {
+    closeMenu();
+    state.started = true;
+  }
+
+  onePlayerButton.on("pointerdown", start);
   state.created = true;
 }
-
 function placeBomb() {
   const { bx, by } = player.getBombPosition();
   const bombCollisions = game.collisionFinder.findCollisions(bx, by, 20);
@@ -127,7 +141,12 @@ function placeBomb() {
 let updating = false;
 let counter = 0;
 let lastTime = 0;
+
 function update(time, delta) {
+  if (!state.started) {
+    return;
+  }
+
   if (cursors.up.isDown) {
     player.moveUp();
   } else if (cursors.down.isDown) {
