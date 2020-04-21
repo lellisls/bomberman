@@ -85,6 +85,7 @@ export default function createCreep(game) {
     this.idle(creep);
     this.state.creeps.push(creep);
     creep.name = "creep";
+    creep.index = index;
     creep.time = new Map();
     return creep;
   }
@@ -169,7 +170,9 @@ export default function createCreep(game) {
       // }
       return (
         !collided.gameObject ||
-        (collided.gameObject.name !== "player" && collided.gameObject !== creep)
+        collided.gameObject.name !== "player" ||
+        (collided.gameObject.name === "creep" &&
+          collided.gameObject.index !== creep.index)
       );
     });
   }
@@ -186,7 +189,7 @@ export default function createCreep(game) {
   function findAvailable(creep) {
     const available = [];
 
-    for (let direction = 0; direction < 5; ++direction) {
+    for (let direction = 0; direction < 4; ++direction) {
       let collisions = findCollisions(creep, direction);
       if (collisions.length <= 0) {
         available.push(direction);
@@ -200,14 +203,15 @@ export default function createCreep(game) {
     return getNextPosition(creep, dx * 64, dy * 64);
   }
 
-  let times = new Map();
-
   function changeCreepDirection(creep) {
     if (!creep || !creep.active || creep.name !== "creep") {
       return false;
     }
 
     const [scene] = game.scene.scenes;
+
+    const position = getNextPosition(creep, 0, 0);
+    creep.time.set(position.toString(), scene.time.now);
 
     let available = findAvailable(creep);
 
@@ -218,7 +222,7 @@ export default function createCreep(game) {
 
     available = Random.shuffleArray(available);
 
-    const positions = [0, 1, 2, 3, 4].map((dir) => {
+    const positions = [0, 1, 2, 3].map((dir) => {
       const [x, y] = getDirectionPos(creep, dir);
       return [x, y].toString();
     });
@@ -233,27 +237,8 @@ export default function createCreep(game) {
 
     const selected = available[0];
     const nextMove = directions[selected];
-    let pos = positions[selected];
-    creep.time.set(pos, scene.time.now);
-    const [x, y] = getDirectionPos(creep, selected);
+    // let pos = positions[selected];
 
-    if (times[pos]) {
-      times[pos].destroy();
-    }
-    // times[pos] = scene.add.text(x, y, Math.round(time[selected]).toString());
-
-    // console.log(
-    //   "times:",
-    //   time.map((t) => Math.round(t)),
-    //   "\npositions:",
-    //   positions,
-    //   "\nselected:",
-    //   selected,
-    //   "\nselTime:",
-    //   time[selected],
-    //   "\nsorted:",
-    //   available.map((a) => Math.round(time[a]))
-    // );
     nextMove(creep);
   }
 
