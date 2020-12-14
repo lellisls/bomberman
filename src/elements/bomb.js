@@ -88,7 +88,7 @@ export default function createBomb(game) {
       const collisions = game.collisionFinder.findCollisions(fx, fy, 30);
 
       if (collisions.length > 0) {
-        collisions.forEach((coll) => {
+        for (let coll of collisions) {
           if (coll.gameObject) {
             if (["portal", "bomb"].indexOf(coll.gameObject.name) > 0) {
               return;
@@ -98,7 +98,7 @@ export default function createBomb(game) {
             coll.gameObject.destroy();
             createFlame(fx, fy);
           }
-        });
+        }
         break;
       } else {
         createFlame(fx, fy);

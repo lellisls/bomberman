@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import Random from "./utils/random";
 
 import createCollisionFinder from "./utils/collisionFinder";
 import boardGenerator from "./utils/boardGenerator";
@@ -11,7 +12,7 @@ import createMenu from "./elements/menu";
 
 const BOARD_WIDTH = 15;
 const BOARD_HEIGHT = 15;
-const DEBUG = false;
+const DEBUG = false
 
 const config = {
   type: Phaser.AUTO,
@@ -99,11 +100,11 @@ function create() {
     }
   }
 
-  this.physics.add.collider(
-    state.creepGroup,
-    state.creepGroup,
-    creepManager.changeDirection
-  );
+  // this.physics.add.collider(
+  //   state.creepGroup,
+  //   state.creepGroup,
+  //   creepManager.changeDirection
+  // );
 
   this.physics.add.collider(state.creepGroup, state.sprites.player, () =>
     state.sprites.player.destroy()
@@ -126,6 +127,8 @@ function create() {
 
   onePlayerButton.on("pointerdown", start);
   state.created = true;
+
+  start();
 }
 function placeBomb() {
   const { bx, by } = player.getBombPosition();
@@ -163,7 +166,7 @@ function update(time, delta) {
     return;
   }
 
-  if (time < 5000 || time - lastTime < 50) {
+  if (time < 500 || time - lastTime < 50) {
     return;
   }
   lastTime = time;
@@ -171,16 +174,34 @@ function update(time, delta) {
   counter++;
 
   updating = true;
-  state.sprites.creeps.forEach((creep) => {
-    if (!creep.active) {
-      return;
+
+  var movableCreeps = state.sprites.creeps
+    .map((creep) => {
+      if (!creep.active) {
+        return;
+      }
+      let { x: cx, y: cy } = creep.body.center;
+      cx = Math.round(cx);
+      cy = Math.round(cy);
+      if ((cx + 32) % 64 === 0 && (cy + 32) % 64 === 0) {
+        return creep;
+      }
+    })
+    .filter((creep) => !!creep);
+
+  movableCreeps = Random.shuffleArray(movableCreeps)
+
+  for (let creep of movableCreeps) {
+    creep.tweens && creep.tweens.stop();
+    if(creep.nextPosition ) {
+      creep = {...creep, ...creep.nextPosition}
     }
-    let { x: cx, y: cy } = creep.body.center;
-    cx = Math.round(cx);
-    cy = Math.round(cy);
-    if ((cx + 32) % 64 === 0 && (cy + 32) % 64 === 0) {
-      creepManager.changeDirection(creep);
-    }
-  });
+    creep.nextPosition = undefined;
+  }
+
+  for (let creep of movableCreeps) {
+    creepManager.changeDirection(creep);
+  }
+
   updating = false;
 }

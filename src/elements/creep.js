@@ -7,7 +7,7 @@ export default function createCreep(game) {
   const DOWN = 2;
   const LEFT = 3;
   const DIST = 64;
-  const RADIUS = 30;
+  const RADIUS = 24;
 
   const state = {
     creeps: [],
@@ -90,11 +90,14 @@ export default function createCreep(game) {
     return creep;
   }
 
-  function getNextPosition(creep, dx, dy) {
-    let { x: cx, y: cy } = creep;
-    cx = Math.round((cx - 32) / 64.0) * 64 + 32;
-    cy = Math.round((cy - 32) / 64.0) * 64 + 32;
+  function getRoundedPosition(x, y) {
+    x = Math.round((x - 32) / 64.0) * 64 + 32;
+    y = Math.round((y - 32) / 64.0) * 64 + 32;
+    return [x, y];
+  }
 
+  function getNextPosition(creep, dx, dy) {
+    let [cx, cy] = getRoundedPosition(creep.x, creep.y);
     return [cx + dx, cy + dy];
   }
 
@@ -107,6 +110,8 @@ export default function createCreep(game) {
         y: { value: y, duration: ((Math.abs(dy) + 32) / 64) * VELOCITY },
       },
     ];
+    creep.nextPosition = {x, y};
+
     const [scene] = game.scene.scenes;
     creep.tweens = scene.tweens.timeline({
       tweens,
@@ -152,29 +157,34 @@ export default function createCreep(game) {
     creep.direction = -1;
   }
 
-  function findCollisions(creep, direction) {
-    let { x: cx, y: cy } = creep.body.center;
-    cx = Math.round(cx);
-    cy = Math.round(cy);
+  function samePosition(x1, y1, x2, y2) {
+    return Math.abs(x1 - x2) <= 0 && Math.abs(y1 - y2) <= 0;
+  }
 
-    const [dx, dy] = offsets[direction];
+  function findNextCollisions(x, y) {
+    return state.creeps.filter(c => !!c && !!c.nextPosition).filter((c) => samePosition(c.nextPosition.x, c.nextPosition.y, x, y));
+  }
 
-    let collisions = game.collisionFinder.findCollisions(
-      cx + dx * DIST,
-      cy + dy * DIST,
-      RADIUS
-    );
-    return collisions.filter((collided) => {
-      // if (collided.gameObject && collided.gameObject !== creep) {
-      //   console.log(collided.gameObject, creep);
-      // }
-      return (
-        !collided.gameObject ||
-        collided.gameObject.name !== "player" ||
-        (collided.gameObject.name === "creep" &&
-          collided.gameObject.index !== creep.index)
-      );
-    });
+  function findCollisions(creep, x, y) {
+    // let [cx, cy] = getRoundedPosition(creep.x, creep.y);
+
+    const creepCollisions = state.creeps.filter((c) => samePosition(c, x, y));
+    const nextCollisions = findNextCollisions(x, y);
+    let collisions = game.collisionFinder.findCollisions(x, y, RADIUS);
+
+    return collisions
+      .filter((collided) => {
+        // if (collided.gameObject && collided.gameObject !== creep) {
+        //   console.log(collided.gameObject, creep);
+        // }
+        return (
+          !collided.gameObject ||
+          collided.gameObject.name !== "player" ||
+          (collided.gameObject.name === "creep" &&
+            collided.gameObject.index !== creep.index)
+        );
+      })
+      .concat(creepCollisions, nextCollisions);
   }
 
   function filterAvailable(available, { direction }) {
@@ -190,8 +200,14 @@ export default function createCreep(game) {
     const available = [];
 
     for (let direction = 0; direction < 4; ++direction) {
-      let collisions = findCollisions(creep, direction);
-      if (collisions.length <= 0) {
+      const [dx, dy] = getDirectionPos(creep, direction);
+
+      let collisions = findCollisions(creep, dx, dy);
+      // if(nextCollisions.length > 0) {
+      //   console.log(creep, nextCollisions);
+      // }
+
+      if (collisions.length == 0) {
         available.push(direction);
       }
     }
@@ -226,11 +242,12 @@ export default function createCreep(game) {
       const [x, y] = getDirectionPos(creep, dir);
       return [x, y].toString();
     });
-    positions.forEach((pos) => {
+
+    for (let pos of positions) {
       if (creep.time.get(pos) === undefined) {
         creep.time.set(pos, 0.0);
       }
-    });
+    }
 
     const time = positions.map((a) => creep.time.get(a));
     available = available.sort((a, b) => time[a] - time[b]);
@@ -240,6 +257,7 @@ export default function createCreep(game) {
     // let pos = positions[selected];
 
     nextMove(creep);
+    return true;
   }
 
   function changeDirection(col1, col2) {
